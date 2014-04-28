@@ -1,0 +1,11 @@
+This is the first attempt at a system that can quickly and accurately record
+data for NSCA registered shoots and make reports from that data. I am
+attempting to hack this together as quickly as possible for an upcoming shoot.
+I will be leaving out user authentication for the first version because it
+is not needed at the moment.
+
+In the first version of this web application, I am focusing on only the
+relevant data required to generate a score report. This data includes: name,
+NSCA number, class, concurrent, and score for the shooter. I will also include
+options for HOA, HIC, and Lewis Class as well as other relevant information
+to calculate these items.
