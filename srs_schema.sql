@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 01, 2014 at 02:28 AM
+-- Generation Time: May 01, 2014 at 08:33 AM
 -- Server version: 5.6.16
 -- PHP Version: 5.5.11
 
@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS `eventstation` (
   `tieBreakerPosition` int(11) DEFAULT NULL,
   `stationDetail` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `shootEventId` (`shootEventId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  UNIQUE KEY `uniqueShootEventId+stationNumber` (`shootEventId`,`stationNumber`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=50 ;
 
 -- --------------------------------------------------------
 
