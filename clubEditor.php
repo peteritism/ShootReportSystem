@@ -45,7 +45,7 @@ $(function() {
 		element: $('.clubTable'),
 		displayFunction: {
 			id: function(id) {
-				return $('<a href="shootEdiotr.php?club='+id+'">'+id+'</a>');
+				return $('<a href="shootEdiotr.php?clubId='+id+'">'+id+'</a>');
 			}
 		}
 	});

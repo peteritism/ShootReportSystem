@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 28, 2014 at 08:55 PM
+-- Generation Time: May 01, 2014 at 02:28 AM
 -- Server version: 5.6.16
 -- PHP Version: 5.5.11
 
@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `nsca`
 --
+CREATE DATABASE IF NOT EXISTS `nsca` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `nsca`;
 
 -- --------------------------------------------------------
 
@@ -30,8 +32,9 @@ CREATE TABLE IF NOT EXISTS `club` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nscaClubId` int(11) DEFAULT NULL,
   `clubName` varchar(100) DEFAULT NULL,
-  UNIQUE KEY `id` (`id`,`nscaClubId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  UNIQUE KEY `id` (`id`,`nscaClubId`),
+  UNIQUE KEY `nscaClubId` (`nscaClubId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 -- --------------------------------------------------------
 
@@ -81,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `registeredshoot` (
   `shootDate` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `clubId` (`clubId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -100,7 +103,8 @@ CREATE TABLE IF NOT EXISTS `shooter` (
   `nscaConcurrent` varchar(5) DEFAULT NULL,
   `nscaConcurrentLady` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `nscaId` (`nscaId`)
+  UNIQUE KEY `nscaId` (`nscaId`),
+  UNIQUE KEY `nscaId_2` (`nscaId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -138,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `shootevent` (
   `targets` tinyint(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `shootId` (`shootId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
 -- Constraints for dumped tables
@@ -148,8 +152,8 @@ CREATE TABLE IF NOT EXISTS `shootevent` (
 -- Constraints for table `eventshooter`
 --
 ALTER TABLE `eventshooter`
-  ADD CONSTRAINT `eventshooter_ibfk_2` FOREIGN KEY (`shooterId`) REFERENCES `shooter` (`id`),
-  ADD CONSTRAINT `eventshooter_ibfk_1` FOREIGN KEY (`shootEventId`) REFERENCES `shootevent` (`id`);
+  ADD CONSTRAINT `eventshooter_ibfk_1` FOREIGN KEY (`shootEventId`) REFERENCES `shootevent` (`id`),
+  ADD CONSTRAINT `eventshooter_ibfk_2` FOREIGN KEY (`shooterId`) REFERENCES `shooter` (`id`);
 
 --
 -- Constraints for table `eventstation`
@@ -167,8 +171,8 @@ ALTER TABLE `registeredshoot`
 -- Constraints for table `shootereventstationscore`
 --
 ALTER TABLE `shootereventstationscore`
-  ADD CONSTRAINT `shootereventstationscore_ibfk_2` FOREIGN KEY (`eventStationId`) REFERENCES `eventstation` (`id`),
-  ADD CONSTRAINT `shootereventstationscore_ibfk_1` FOREIGN KEY (`eventShooterId`) REFERENCES `eventshooter` (`id`);
+  ADD CONSTRAINT `shootereventstationscore_ibfk_1` FOREIGN KEY (`eventShooterId`) REFERENCES `eventshooter` (`id`),
+  ADD CONSTRAINT `shootereventstationscore_ibfk_2` FOREIGN KEY (`eventStationId`) REFERENCES `eventstation` (`id`);
 
 --
 -- Constraints for table `shootevent`
