@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 01, 2014 at 08:33 AM
+-- Generation Time: May 05, 2014 at 04:55 AM
 -- Server version: 5.6.16
 -- PHP Version: 5.5.11
 
@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS `eventshooter` (
   `hoaOption` bit(1) DEFAULT NULL,
   `hicOption` bit(1) DEFAULT NULL,
   `LewisOption` bit(1) DEFAULT NULL,
+  `class` varchar(2) DEFAULT NULL,
+  `concurrent` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `shootEventId` (`shootEventId`),
   KEY `shooterId` (`shooterId`)
@@ -65,11 +67,15 @@ CREATE TABLE IF NOT EXISTS `eventstation` (
   `shootEventId` int(11) DEFAULT NULL,
   `stationNumber` tinyint(2) DEFAULT NULL,
   `maxScore` tinyint(2) DEFAULT NULL,
-  `tieBreakerPosition` int(11) DEFAULT NULL,
+  `tieBreakerPosition` int(2) DEFAULT NULL,
+  `singleBirds` int(2) DEFAULT NULL,
+  `truePairs` int(2) DEFAULT NULL,
+  `reportPairs` int(2) DEFAULT NULL,
+  `followingPairs` int(2) DEFAULT NULL,
   `stationDetail` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniqueShootEventId+stationNumber` (`shootEventId`,`stationNumber`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=50 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=260 ;
 
 -- --------------------------------------------------------
 
@@ -82,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `registeredshoot` (
   `clubId` int(11) DEFAULT NULL,
   `shootName` varchar(50) DEFAULT NULL,
   `shootDate` date DEFAULT NULL,
+  `nscaShootId` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `clubId` (`clubId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
@@ -98,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `shooter` (
   `firstName` varchar(40) DEFAULT NULL,
   `lastName` varchar(40) DEFAULT NULL,
   `suffix` varchar(5) DEFAULT NULL,
+  `address` varchar(1000) DEFAULT NULL,
   `state` varchar(5) DEFAULT NULL,
   `nscaClass` varchar(3) DEFAULT NULL,
   `nscaConcurrent` varchar(5) DEFAULT NULL,

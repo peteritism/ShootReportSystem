@@ -69,7 +69,7 @@ $eventId = $_GET['eventId'];
 
 <body>
 	<h1>Station Editor</h1>
-	<h2> Editing Stations in the 
+	<p> Editing Stations in the <b>
 	<?php 
 	
 	$query =	'SELECT eventType
@@ -80,14 +80,21 @@ $eventId = $_GET['eventId'];
 	echo $row['eventType'];
 
 	?>
-	Event of the 
+	Event</b> of the <b>
 	
 	<?php
-		//code here to get shootName
-		echo 'put some code here'
+
+		$query = 	'SELECT nsca.registeredshoot.shootName
+					FROM nsca.registeredshoot
+					JOIN nsca.shootevent
+					ON registeredshoot.id=shootevent.shootId
+					WHERE shootevent.id = ' . $eventId;
+		$result = dbquery($query);
+		$row = mysql_fetch_array($result);
+		echo $row['shootName'];
 	?>
 	
-	Registered Shoot</h2>
+	 </b> Registered Shoot</p>
 	<div class="stationTable"></div>
 
 </body>
@@ -106,7 +113,7 @@ $(function() {
 	var eventsTable = new EditableTable({
 		db: '<?= $mysql_database_name ?>',
 		dbTable: 'eventstation',
-		columnHeaders: ['ID','Event ID','Station No.','Max Score','Tiebreaker','Station Details'],
+		columnHeaders: ['ID','Event ID','Station No.','Max Score','Tiebreaker','Singles','True Pairs','Report Pairs','Following Pairs','Station Details'],
 		uneditableColumns: ['id','shootEventId'],
 		element: $('.stationTable'),
 
