@@ -17,7 +17,7 @@ $eventId = $_GET['eventId'];
 //generate that amount of stations each time the page is loaded
 //shootevent+stationNumber are UNIQUE, so repeated INSERTs are ignored
 	while ($i <= $stations){
-		$query = 'INSERT INTO `' . $mysql_database_name . '`.`eventstation`
+		$query = 'INSERT INTO `eventstation`
 		(`id`, `shootEventId`, `stationNumber`, `maxScore`, `tieBreakerPosition`, `stationDetail`)
 		VALUES (NULL, \''. $eventId .'\', \''. $i .'\', NULL, NULL, NULL);';
 		

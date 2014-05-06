@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 06, 2014 at 05:25 AM
+-- Generation Time: May 06, 2014 at 04:07 PM
 -- Server version: 5.6.16
 -- PHP Version: 5.5.11
 
@@ -46,15 +46,15 @@ CREATE TABLE IF NOT EXISTS `eventshooter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `shootEventId` int(11) DEFAULT NULL,
   `shooterId` int(11) DEFAULT NULL,
-  `hoaOption` tinyint(1) DEFAULT NULL,
-  `hicOption` tinyint(1) DEFAULT NULL,
-  `lewisOption` tinyint(1) DEFAULT NULL,
+  `hoaOption` tinyint(1) DEFAULT '0',
+  `hicOption` tinyint(1) DEFAULT '0',
+  `lewisOption` tinyint(1) DEFAULT '0',
   `class` varchar(2) DEFAULT NULL,
   `concurrent` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `shootEventId` (`shootEventId`),
+  UNIQUE KEY `eventShooterId+shooterID` (`shootEventId`,`shooterId`) COMMENT 'only one of the same shooter per event',
   KEY `shooterId` (`shooterId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Keeps' AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Keeps' AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -109,11 +109,11 @@ CREATE TABLE IF NOT EXISTS `shooter` (
   `state` varchar(5) DEFAULT NULL,
   `nscaClass` varchar(2) DEFAULT NULL,
   `nscaConcurrent` varchar(3) DEFAULT NULL,
-  `nscaConcurrentLady` bit(1) DEFAULT NULL,
+  `nscaConcurrentLady` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nscaId` (`nscaId`),
   UNIQUE KEY `nscaId_2` (`nscaId`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
