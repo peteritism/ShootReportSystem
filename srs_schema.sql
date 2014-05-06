@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 05, 2014 at 04:55 AM
+-- Generation Time: May 06, 2014 at 05:25 AM
 -- Server version: 5.6.16
 -- PHP Version: 5.5.11
 
@@ -46,15 +46,15 @@ CREATE TABLE IF NOT EXISTS `eventshooter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `shootEventId` int(11) DEFAULT NULL,
   `shooterId` int(11) DEFAULT NULL,
-  `hoaOption` bit(1) DEFAULT NULL,
-  `hicOption` bit(1) DEFAULT NULL,
-  `LewisOption` bit(1) DEFAULT NULL,
+  `hoaOption` tinyint(1) DEFAULT NULL,
+  `hicOption` tinyint(1) DEFAULT NULL,
+  `lewisOption` tinyint(1) DEFAULT NULL,
   `class` varchar(2) DEFAULT NULL,
   `concurrent` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `shootEventId` (`shootEventId`),
   KEY `shooterId` (`shooterId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Keeps' AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Keeps' AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `eventstation` (
   `stationDetail` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniqueShootEventId+stationNumber` (`shootEventId`,`stationNumber`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=260 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=274 ;
 
 -- --------------------------------------------------------
 
@@ -86,9 +86,9 @@ CREATE TABLE IF NOT EXISTS `eventstation` (
 CREATE TABLE IF NOT EXISTS `registeredshoot` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `clubId` int(11) DEFAULT NULL,
+  `nscaShootID` int(11) DEFAULT NULL,
   `shootName` varchar(50) DEFAULT NULL,
   `shootDate` date DEFAULT NULL,
-  `nscaShootId` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `clubId` (`clubId`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
@@ -107,13 +107,13 @@ CREATE TABLE IF NOT EXISTS `shooter` (
   `suffix` varchar(5) DEFAULT NULL,
   `address` varchar(1000) DEFAULT NULL,
   `state` varchar(5) DEFAULT NULL,
-  `nscaClass` varchar(3) DEFAULT NULL,
-  `nscaConcurrent` varchar(5) DEFAULT NULL,
+  `nscaClass` varchar(2) DEFAULT NULL,
+  `nscaConcurrent` varchar(3) DEFAULT NULL,
   `nscaConcurrentLady` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nscaId` (`nscaId`),
   UNIQUE KEY `nscaId_2` (`nscaId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 

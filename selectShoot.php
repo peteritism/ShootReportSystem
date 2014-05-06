@@ -27,13 +27,19 @@ $clubId = $_GET['clubId'];
 	<?php
 	
 		$query = 	'SELECT *
-					FROM ' . $mysql_database_name . '.registeredshoot
+					FROM registeredshoot
 					WHERE clubId =' . $clubId;
 		$result = dbquery($query);
-		while($row = mysql_fetch_array($result)){
-			echo $row['shootDate'] . ' <a href=\'selectEvent.php?shootId=' . $row['id'] . '\'>' . $row['shootName'] . '</a>'; 
-			echo '<br/>';
+		if(!mysqli_fetch_array($result)){
+			echo 'This club has not added any shoots yet';
+		}else {
+			mysqli_data_seek($result,0);
+			while($row = mysqli_fetch_array($result)){
+				echo $row['shootDate'] . ' <a href=\'selectEvent.php?shootId=' . $row['id'] . '\'>' . $row['shootName'] . '</a>'; 
+				echo '<br/>';
+			}
 		}
+
 	
 	?>
 

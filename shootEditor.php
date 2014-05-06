@@ -27,10 +27,10 @@ $clubId = $_GET['clubId'];
 	<?php 
 	
 	$query =	'SELECT clubName
-				FROM ' . $mysql_database_name . '.club
-				WHERE id=1';
+				FROM club
+				WHERE id=' . $clubId;
 	$result = dbquery($query);
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	echo $row['clubName'];
 
 	?>
@@ -53,7 +53,7 @@ $(function() {
 	var eventsTable = new EditableTable({
 		db: '<?= $mysql_database_name ?>',
 		dbTable: 'registeredshoot',
-		columnHeaders: ['id','clubId','shootName','shootDate'],
+		columnHeaders: ['ID','Club ID','Shoot ID','Shoot Name','Shoot Date'],
 		uneditableColumns: ['id','clubId'],
 		element: $('.shootTable'),
 		displayFunction: {

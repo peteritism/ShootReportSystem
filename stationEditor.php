@@ -11,7 +11,7 @@ $eventId = $_GET['eventId'];
 				FROM ' . $mysql_database_name . '.shootevent
 				WHERE id='. $eventId;
 	$result = dbquery($query);
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	$stations = $row['stations'];
 	$i = 1;
 //generate that amount of stations each time the page is loaded
@@ -73,10 +73,10 @@ $eventId = $_GET['eventId'];
 	<?php 
 	
 	$query =	'SELECT eventType
-				FROM ' . $mysql_database_name . '.shootevent
+				FROM shootevent
 				WHERE id='. $eventId;
 	$result = dbquery($query);
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	echo $row['eventType'];
 
 	?>
@@ -84,13 +84,13 @@ $eventId = $_GET['eventId'];
 	
 	<?php
 
-		$query = 	'SELECT nsca.registeredshoot.shootName
-					FROM nsca.registeredshoot
-					JOIN nsca.shootevent
+		$query = 	'SELECT registeredshoot.shootName
+					FROM registeredshoot
+					JOIN shootevent
 					ON registeredshoot.id=shootevent.shootId
 					WHERE shootevent.id = ' . $eventId;
 		$result = dbquery($query);
-		$row = mysql_fetch_array($result);
+		$row = mysqli_fetch_array($result);
 		echo $row['shootName'];
 	?>
 	

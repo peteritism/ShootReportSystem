@@ -25,9 +25,9 @@ include ('include.php');
 	<?php
 	
 		$query = 	'SELECT *
-					FROM ' . $mysql_database_name . '.club';
+					FROM club';
 		$result = dbquery($query);
-		while($row = mysql_fetch_array($result)){
+		while($row = mysqli_fetch_array($result)){
 			echo $row['nscaClubId'] . ' <a href=\'selectShoot.php?clubId=' . $row['id'] . '\'>' . $row['clubName'] . '</a>'; 
 			echo '<br/>';
 		}

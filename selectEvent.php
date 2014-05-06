@@ -27,10 +27,10 @@ $shootId = $_GET['shootId'];
 	<?php
 	
 		$query = 	'SELECT *
-					FROM ' . $mysql_database_name . '.shootevent
+					FROM shootevent
 					WHERE shootId =' . $shootId;
 		$result = dbquery($query);
-		while($row = mysql_fetch_array($result)){
+		while($row = mysqli_fetch_array($result)){
 			echo '<a href=\'eventShooterEditor.php?eventId=' . $row['id'] . '\'>' . $row['eventType'] . '</a>' . ' - ' . $row['targets'] . ' Targets'; 
 			echo '<br/>';
 		}

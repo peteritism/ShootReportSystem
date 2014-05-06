@@ -52,10 +52,10 @@ $shootId = $_GET['shootId'];
 	<?php 
 	
 	$query =	'SELECT shootName
-				FROM ' . $mysql_database_name . '.registeredshoot
+				FROM registeredshoot
 				WHERE id=1';
 	$result = dbquery($query);
-	$row = mysql_fetch_assoc($result);
+	$row = mysqli_fetch_assoc($result);
 	echo $row['shootName'];
 
 	?>
