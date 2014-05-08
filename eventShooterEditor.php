@@ -13,7 +13,6 @@ $eventId = $_GET['eventId'];
 	$result = dbquery($query);
 	$row = mysqli_fetch_assoc($result);
 	$stations = $row['stations'];
-	$i = 1;
 	
 	if (isset($_POST['nscaConcurrentLady'])){
 		$nscaConcurrentLady = '1';
@@ -51,8 +50,9 @@ $eventId = $_GET['eventId'];
 		$shooterId = $row['id'];
 		
 		//add event shooter
-		$query =	'INSERT INTO `nsca`.`eventshooter` (`id`, `shootEventId`, `shooterId`, `hoaOption`, `hicOption`, `lewisOption`, `class`, `concurrent`) VALUES (NULL, \''. $eventId .'\', \''. $shooterId .'\', \''. $hoaOption .'\', \''. $hicOption .'\', \''. $lewisOption .'\', \''. $_POST['nscaClass'] .'\', \''. $_POST['nscaConcurrent'] .'\')';
+		$query =	'INSERT INTO `eventshooter` (`id`, `shootEventId`, `shooterId`, `hoaOption`, `hicOption`, `lewisOption`, `class`, `concurrent`) VALUES (NULL, \''. $eventId .'\', \''. $shooterId .'\', \''. $hoaOption .'\', \''. $hicOption .'\', \''. $lewisOption .'\', \''. $_POST['nscaClass'] .'\', \''. $_POST['nscaConcurrent'] .'\')';
 		dbquery($query);
+
 	}
 ?>
 
@@ -75,7 +75,7 @@ $eventId = $_GET['eventId'];
 <body>
 	<h1>Event Shooters Editor</h1>
 	<?php
-	//put if event exists here
+	//put if event exists statement here
 	
 		echo '<h2> Editing Shooters in the ';
 		
@@ -100,34 +100,6 @@ $eventId = $_GET['eventId'];
 		echo ' Registered Shoot</h2>';
 	?>
 
-	<!--
-	Shooter
-		id
-		nscaId
-		firstName
-		lastName
-		suffix
-		address
-		state
-		nscaClass
-		nscaConcurrent
-		nscaConcurrentLady
-	EventShooter
-		id
-		shootEventId
-		shooterId
-		hoaOption
-		hicOption
-		LewisOption
-		class
-		concurrent
-		
-	
-		EVENTSHOOTER TABLE
-		 nsca name clas concurrent HOA, HIC, Lewis
-	-->
-	
-	
 	<table>
 		<tr class='columnNames'>
 			<td>NSCA#</td>
@@ -177,11 +149,7 @@ $eventId = $_GET['eventId'];
 	</table>
 	
 	<?php
-	
-	
-	
-	
-	
+
 	echo 'Event Shooters <br/>';
 	$query =	'SELECT *
 				FROM eventshooter
@@ -216,7 +184,14 @@ $eventId = $_GET['eventId'];
 		}
 		echo 'disabled=\'disabled\'></td>';
 		
-		echo '<td><button>Edit</button></td>';
+		echo '<td><button disabled=\'disabled\'>Edit</button></td>';
+		echo 	'<td>
+					<form method=\'get\' action=\'scoreEditor.php?\' >
+						<input type=\'hidden\' name=\'eventId\' value=\'' . $eventId . '\'>
+						<input type=\'hidden\' name=\'eventshooterId\' value=\'' . $row['id'] . '\'>
+						<input type=\'submit\' value=\'Edit Scores\' >
+					</form>
+				</td>';
 	}
 	echo '</table>';
 	
