@@ -158,14 +158,22 @@ $eventId = $_GET['eventId'];
 				WHERE eventshooter.shootEventId =' . $eventId . 
 				' ORDER BY shooter.lastName ASC';
 	$result = dbquery($query);
-	echo '<table border=\'1\'>';
+	echo '<table border=\'1\'><thead><td>NSCA ID</td><td></td><td></td><td></td><td></td><td>Score</td><td>HOA</td><td>HIC</td><td>Lewis</td><td></td><td></td></thead>';
 	while ($row = mysqli_fetch_array($result)){
 		echo '<tr>';
+		echo '<td class=\'nscaId\'>' . $row['nscaId'] . '</td>';
 		echo '<td class=\'firstName\'>' . $row['firstName'] . '</td>';
 		echo '<td class=\'lasttName\'>' . $row['lastName'] . '</td>';
-		echo '<td class=\'nscaId\'>' . $row['nscaId'] . '</td>';
 		echo '<td class=\'class\'>' . $row['class'] . '</td>';
 		echo '<td class=\'concurrent\'>' . $row['concurrent'] . '</td>';
+		//get score
+		$query2 = 	'SELECT SUM(targetsBroken)
+					AS totalScore
+					FROM shootereventstationscore
+					WHERE eventShooterId=' . $row['id'];
+		$result2 = dbquery($query2);
+		$row2 = mysqli_fetch_assoc($result2);
+		echo '<td class=\'score\'>' . $row2['totalScore'] . '</td>';
 		echo '<td class=\'hoaOption\'><input type=\'checkbox\' ';
 		if($row['hoaOption'] == 1){
 			echo 'checked=\'checked\' ';
@@ -188,7 +196,7 @@ $eventId = $_GET['eventId'];
 		echo 	'<td>
 					<form method=\'get\' action=\'scoreEditor.php?\' >
 						<input type=\'hidden\' name=\'eventId\' value=\'' . $eventId . '\'>
-						<input type=\'hidden\' name=\'eventshooterId\' value=\'' . $row['id'] . '\'>
+						<input type=\'hidden\' name=\'eventShooterId\' value=\'' . $row['id'] . '\'>
 						<input type=\'submit\' value=\'Edit Scores\' >
 					</form>
 				</td>';

@@ -16,6 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 					WHERE id=' . $value;
 		dbquery($query);
 	}
+	$url = 'Location:eventShooterEditor.php?eventId=' . $eventId;
+	header($url);
+	exit;
 }
 
 //get quantity of stations from event
@@ -98,7 +101,7 @@ while ($i <= $stations){
 	while ($j <= $stations){
 		echo '<td>' . $j . '</td>';
 		$j++;	}
-	echo '<td></td></thead>';
+	echo '<td>Total</td></thead>';
 	$query =	'SELECT id,targetsBroken
 				FROM shootereventstationscore
 				WHERE eventShooterId =' . $eventShooterId;
@@ -109,7 +112,8 @@ while ($i <= $stations){
 		echo '<td><input type=\'text\' size=\'1\' class=\'station' . $m . '\' name=\'' . $row['id'] . '\' value=\'' . $row['targetsBroken'] . '\'></td>';
 		$m++;
 	}
-	echo'<td><input type=\'submit\'></td></form></tr>';
+	echo '<td id=\'totalScore\'></td>';
+	echo '<td><input type=\'submit\' value=\'Save Scores\'></td></form></tr>';
 	echo '</table>';
 	
 	
@@ -122,4 +126,26 @@ while ($i <= $stations){
 	include 'footer.php';
 
 ?>
+
+<script>
+	//total score on the fly
+	function calculateScore () {
+		var score = parseInt(0);
+		$('input[type="text"]').each(function(k,v){
+			var val = $(v).val();
+			score += parseInt(val);
+		});
+		$('#totalScore').html(score);
+	};
+
+	$( document ).ready(function() {
+		//check score on page load
+		calculateScore();
+		//check score after data entered
+		$('input[type="text"]').change(function(){
+			calculateScore();
+		});
+	});
+
+</script>
 </html>
