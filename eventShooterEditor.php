@@ -42,9 +42,11 @@ $eventId = $_GET['eventId'];
 		dbquery($query);
 		
 		//get new shooterId
+		//cannot search where nscaid = $_POST[nscaId] because nsca may not exist
 		$query = 	'SELECT id
 					FROM shooter
-					WHERE nscaId=' . $_POST['nscaId'];
+					ORDER BY id DESC
+					LIMIT 1';
 		$result= dbquery($query);
 		$row = mysqli_fetch_assoc($result);
 		$shooterId = $row['id'];
@@ -69,6 +71,12 @@ $eventId = $_GET['eventId'];
 			padding: 1px 5px;
 			text-align:center;
 		}
+		td.firstName{
+			text-align:right;
+		}
+		td.lastName{
+			text-align:left;
+		}
 	</style>
 </head>
 
@@ -84,7 +92,8 @@ $eventId = $_GET['eventId'];
 					WHERE id='. $eventId;
 		$result = dbquery($query);
 		$row = mysqli_fetch_assoc($result);
-		echo $row['eventType'];
+		$eventType = $row['eventType'];
+		echo $eventType;
 
 		echo ' Event of the ';
 		
@@ -117,13 +126,14 @@ $eventId = $_GET['eventId'];
 			<td></td>
 		</tr>
 		<tr><form method='post' action='eventShooterEditor.php?eventId=<?= $eventId ?>'>
-			<td><input type='text' size='5' name='nscaId'></td>
+			<td><input type='text' size='5' name='nscaId' autofocus='autofocus'></td>
 			<td><input type='text' size='10' name='firstName'></td>
 			<td><input type='text' size='10' name='lastName'></td>
 			<td><input type='text' size='1' name='suffix'></td>
-			<td><textarea rows='2' cols='25' name='address'></textarea></td>
-			<td><input type='text' size='1' name='state'></td>
+			<td><textarea rows='2' cols='25' name='address' id='enterAddress'></textarea></td>
+			<td><input type='text' size='1' name='state' id='enterState'></td>
 			<td><select name='nscaClass'>
+				<option value='H'>H</option>
 				<option value='E' selected='selected'>E</option>
 				<option value='D'>D</option>
 				<option value='C'>C</option>
@@ -150,10 +160,17 @@ $eventId = $_GET['eventId'];
 	
 	<?php
 
-	echo 'Event Shooters <br/>';
-	$query =	'SELECT *
+	echo $eventType . ' Event Shooters - ';
+	$query =	'SELECT COUNT(*)
+				AS numberOfShooters
 				FROM eventshooter
-				JOIN shooter
+				WHERE shooteventid =' . $eventId;
+	$result = dbquery($query);
+	$row = mysqli_fetch_assoc($result);
+	echo $row['numberOfShooters'] . ' Shooters </br>';
+	$query =	'SELECT *
+				FROM shooter
+				JOIN eventshooter
 				ON eventshooter.shooterId  = shooter.id
 				WHERE eventshooter.shootEventId =' . $eventId . 
 				' ORDER BY shooter.lastName ASC';
@@ -163,9 +180,16 @@ $eventId = $_GET['eventId'];
 		echo '<tr>';
 		echo '<td class=\'nscaId\'>' . $row['nscaId'] . '</td>';
 		echo '<td class=\'firstName\'>' . $row['firstName'] . '</td>';
-		echo '<td class=\'lasttName\'>' . $row['lastName'] . '</td>';
+		echo '<td class=\'lastName\'>' . $row['lastName'] . ' ' .  $row['suffix'] . '</td>';
 		echo '<td class=\'class\'>' . $row['class'] . '</td>';
-		echo '<td class=\'concurrent\'>' . $row['concurrent'] . '</td>';
+		echo '<td class=\'concurrent\'>';
+		echo $row['concurrent'];
+		if (!empty($row['concurrent']) && $row['nscaConcurrentLady'] == 1){
+			echo ' & LY';
+		}else if (empty($row['concurrent']) && $row['nscaConcurrentLady'] == 1){
+			echo 'LY';
+		}
+		echo'</td>';
 		//get score
 		$query2 = 	'SELECT SUM(targetsBroken)
 					AS totalScore
@@ -221,19 +245,17 @@ $eventId = $_GET['eventId'];
 
 <script type="text/javascript">
 
+$(document).ready(function(){
+	
+	function getState(){
+		var address = $('#enterAddress').val();
+		var splitAddress = address.split(' ');
+		var state = splitAddress[splitAddress.length -2];
+		$('#enterState').val(state);
+	};
 
-$(function() {
-	var eventsTable = new EditableTable({
-		db: '<?= $mysql_database_name ?>',
-		dbTable: 'eventshooter',
-		columnHeaders: ['ID','ShootEvent ID','Shooter ID','HOA','HIC','Lewis','class','concurrent'],
-		uneditableColumns: ['id','shootEventId','shooterId'],
-		element: $('.eventShooterTable'),
-
-	});
-	eventsTable.loadTable(0,100,'shootEventId = <?= $eventId ?>');
-	$('#all').click(function(){
-		$('.erow').trigger('click');
+	$('#enterAddress').change(function(){
+		getState();
 	});
 
 });

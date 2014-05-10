@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$query = 	'UPDATE shootereventstationscore
 					SET targetsBroken =' . $_POST[$value] . '
 					WHERE id=' . $value;
+		$query = str_replace('\'NULL\'','NULL',$query);
 		dbquery($query);
 	}
 	$url = 'Location:eventShooterEditor.php?eventId=' . $eventId;
@@ -113,7 +114,7 @@ while ($i <= $stations){
 		$m++;
 	}
 	echo '<td id=\'totalScore\'></td>';
-	echo '<td><input type=\'submit\' value=\'Save Scores\'></td></form></tr>';
+	echo '<td><input type=\'submit\' value=\'Save Scores\' id=\'saveScores\' ></td></form></tr>';
 	echo '</table>';
 	
 	
@@ -144,6 +145,13 @@ while ($i <= $stations){
 		//check score after data entered
 		$('input[type="text"]').change(function(){
 			calculateScore();
+		});
+		$('#saveScores').click(function(){
+			$('input[type="text"]').each(function(){
+				if ($(this).val() == ''){
+					$(this).val('NULL');
+				}
+			});
 		});
 	});
 

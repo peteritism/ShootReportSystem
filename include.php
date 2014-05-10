@@ -2,13 +2,14 @@
 
 include ('init.php');
 
-
 function dbquery($query) {
+	$query = str_replace('\'NULL\'','NULL',$query); //allows NULL entry
 	$result = mysqli_query($GLOBALS['link'], $query) or die("<b>Error with MySQL Query:</b>.\n<br />Query: " . $query . "<br />\nError: (" . mysqli_errno() . ") " . mysqli_error());
 	return $result;
 }
 
 function dbqueryl($query) {
+	$query = str_replace('\'NULL\'','NULL',$query); //allows NULL entry
 	$result = mysqli_query($GLOBALS['link'], $query);
 	return $result;
 }

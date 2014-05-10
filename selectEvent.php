@@ -34,9 +34,12 @@ $shootId = $_GET['shootId'];
 		while($row = mysqli_fetch_array($result)){
 			echo '<td>' . $row['eventType'] . '</td>';
 			echo '<td> - ' . $row['targets'] . ' Targets</td>';
-			echo '<td><form method=\'get\' action=\'eventShooterEditor.php\' ><input type=\'hidden\' name=\'eventId\' value=\'' . $row['id'] . '\'><input type=\'submit\' value=\'Edit Shooter/Scores\'></form></td>';
-			echo '<td><form method=\'get\' action=\'eventReport.php\' ><input type=\'hidden\' name=\'eventId\' value=\'' . $row['id'] . '\'><input type=\'submit\' value=\'Public Report\'></form></td>';
-			echo '<td><form method=\'get\' action=\'eventReport.php?\' ><input type=\'hidden\' name=\'eventId\' value=\'' . $row['id'] . '\'><input type=\'hidden\' name=\'private\' value=\'private\'><input type=\'submit\' value=\'Private Report\'></form></td>';
+			echo '<td><a href=\'eventShooterEditor.php?eventId=' . $row['id'] . '\'>Edit Shooters/Scores</a></td>';
+			echo '<td><a href=\'eventReport.php?eventId=' . $row['id'] . '\'>Public Report</a></td>';
+			echo '<td><a href=\'eventReport.php?eventId=' . $row['id'] . '&private=private\'>Private Report</a></td>';
+			//echo '<td><form method=\'get\' action=\'eventShooterEditor.php\' ><input type=\'hidden\' name=\'eventId\' value=\'' . $row['id'] . '\'><input type=\'submit\' value=\'Edit Shooter/Scores\'></form></td>';
+			//echo '<td><form method=\'get\' action=\'eventReport.php\' ><input type=\'hidden\' name=\'eventId\' value=\'' . $row['id'] . '\'><input type=\'submit\' value=\'Public Report\'></form></td>';
+			//echo '<td><form method=\'get\' action=\'eventReport.php?\' ><input type=\'hidden\' name=\'eventId\' value=\'' . $row['id'] . '\'><input type=\'hidden\' name=\'private\' value=\'private\'><input type=\'submit\' value=\'Private Report\'></form></td>';
 		}
 		echo '</tr></table>';
 	
