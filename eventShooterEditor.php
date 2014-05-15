@@ -42,7 +42,7 @@ $eventId = $_GET['eventId'];
 		dbquery($query);
 		
 		//get new shooterId
-		//cannot search where nscaid = $_POST[nscaId] because nsca may not exist
+		//cannot search where nscaid = $_POST[nscaId] because NSCA ID may not exist
 		$query = 	'SELECT id
 					FROM shooter
 					ORDER BY id DESC
@@ -76,6 +76,9 @@ $eventId = $_GET['eventId'];
 		}
 		td.lastName{
 			text-align:left;
+		}
+		.altLines tr:nth-child(odd){
+			background: #EEE;
 		}
 	</style>
 </head>
@@ -175,7 +178,7 @@ $eventId = $_GET['eventId'];
 				WHERE eventshooter.shootEventId =' . $eventId . 
 				' ORDER BY shooter.lastName ASC';
 	$result = dbquery($query);
-	echo '<table border=\'1\'><thead><td>NSCA ID</td><td></td><td></td><td></td><td></td><td>Score</td><td>HOA</td><td>HIC</td><td>Lewis</td><td></td><td></td></thead>';
+	echo '<table class=\'altLines\' border=\'1\'><thead><td>NSCA ID</td><td></td><td></td><td></td><td></td><td>Score</td><td>HOA</td><td>HIC</td><td>Lewis</td><td></td><td></td></thead>';
 	while ($row = mysqli_fetch_array($result)){
 		echo '<tr>';
 		echo '<td class=\'nscaId\'>' . $row['nscaId'] . '</td>';

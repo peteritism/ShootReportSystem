@@ -65,14 +65,24 @@ while ($i <= $stations){
 </head>
 
 <body>
-	<h1>Score</h1>
+	<h1>Score Editor</h1>
 	<?php
 	//put if event exists statement here
 	
 	//editing scores for NAME in the EVENTTYPE of the SHOOTNAME registered shoot
 	
-		echo '<h2> Editing Shooters in the ';
-		
+		echo '<h2> Editing ';
+		//get Shooter Name
+		$query =	'SELECT shooter.firstName, shooter.lastName
+					FROM shooter
+					JOIN eventshooter
+					ON shooter.id=eventshooter.shooterId
+					WHERE eventshooter.id=' . $eventShooterId;
+		$result = dbquery($query);
+		$row = mysqli_fetch_array($result);
+		echo $row['firstName'] . ' ' . $row['lastName'];
+		echo ' in the ';
+		//get Event Name
 		$query =	'SELECT eventType
 					FROM shootevent
 					WHERE id='. $eventId;
@@ -81,7 +91,7 @@ while ($i <= $stations){
 		echo $row['eventType'];
 
 		echo ' Event of the ';
-		
+		//Get Shooter Name
 		$query = 	'SELECT registeredshoot.shootName
 					FROM registeredshoot
 					JOIN shootevent
@@ -110,7 +120,12 @@ while ($i <= $stations){
 	$m = 1;
 	echo '<tr><form method=\'post\' action=\'scoreEditor.php?eventId=' . $eventId . '&eventShooterId=' . $eventShooterId . '\' >';
 	while ($row = mysqli_fetch_array($result)){
-		echo '<td><input type=\'text\' size=\'1\' class=\'station' . $m . '\' name=\'' . $row['id'] . '\' value=\'' . $row['targetsBroken'] . '\'></td>';
+		echo '<td><input type=\'text\' size=\'1\' class=\'station' . $m . '\' name=\'' . $row['id'] . '\' value=\'' . $row['targetsBroken'] . '\'';
+		//set first station to autofocus
+		if ($m == 1){
+			echo 'autofocus=\'autofocus\'';
+		}
+		echo '></td>';
 		$m++;
 	}
 	echo '<td id=\'totalScore\'></td>';
@@ -146,6 +161,8 @@ while ($i <= $stations){
 		$('input[type="text"]').change(function(){
 			calculateScore();
 		});
+		//setting empty values to NULL rather than zero
+		//will then check for empty values in eventShooterEditor
 		$('#saveScores').click(function(){
 			$('input[type="text"]').each(function(){
 				if ($(this).val() == ''){

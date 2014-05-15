@@ -6,6 +6,8 @@ At the moment, I haven't focused on either of these since the application is loc
 Usability
 The focus of this project is to make handling data for shooting events much easier. It should be relatively easy to enter data, but there is still a lot that good be done to improve the process. 
 
+Notes
+The files included in docs/rules should not be considered part of this project and are included for reference only. 
 
 To Do List
 
@@ -30,5 +32,6 @@ eventShooterEditor
 		idea:type in nsca number, if found put data into form for editing, else new form
 	make first, last, state, class required (new shooters don't have nsca numbers yet)
 	add lady to concurrent field &LY
-	
+
+scoreReport
 	
