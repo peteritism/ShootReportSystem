@@ -8,30 +8,3 @@ The focus of this project is to make handling data for shooting events much easi
 
 Notes
 The files included in docs/rules should not be considered part of this project and are included for reference only. 
-
-To Do List
-
-Top nav bar
-trim whitespace
-htmlspecialchars
-Breadcrumbs for easy navigation and clear positioning within the site
-
-scoreEditor
-	stop user from leaving page without saving scores
-		indicate changes scores via CSS
-
-eventShooterEditor
-	score check: look for empty values in scores
-	add total number of shooter
-	add phone number to shooter
-	add email to shooter
-	ability to edit shooters
-	ability to remove event shooters
-	ability to edit event shooters
-	ability to add existing shooters
-		idea:type in nsca number, if found put data into form for editing, else new form
-	make first, last, state, class required (new shooters don't have nsca numbers yet)
-	add lady to concurrent field &LY
-
-scoreReport
-	

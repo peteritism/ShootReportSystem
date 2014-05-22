@@ -146,6 +146,9 @@ $eventId = $_GET['eventId'];
 		while ($row = mysqli_fetch_array($result)){
 			$tableData[$i]['firstName'] = $row['firstName'];
 			$tableData[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
+			$tableData[$i]['nscaId'] = $row['nscaId']; 		//merged into nsca report
+			$tableData[$i]['state'] = $row['state'];		//merged into nsca report
+			$tableData[$i]['shooterId'] = $row['shooterId'];//merged into nsca report
 			//get scores
 			$query2 = 	'SELECT SUM(targetsBroken)
 						AS totalScore
@@ -163,7 +166,7 @@ $eventId = $_GET['eventId'];
 		array_multisort($tmp, SORT_DESC, $tableData);
 		//put top six scores in an array
 		$scoreList = array();
-		$last = 101;
+		$last = 101;	//higher than any possible score
 		foreach ($tableData as $val){
 			//need six for shoots with more than 45 shooters per class
 			$current = $val['score'];
@@ -172,7 +175,7 @@ $eventId = $_GET['eventId'];
 				$last = $current;
 			}
 		}
-
+		//determine punches/award based on amount of shooters
 		if ($shooterCount > 0 && $shooterCount <= 2){
 			$punches = array();
 		}
@@ -195,7 +198,7 @@ $eventId = $_GET['eventId'];
 		$j = 0; //location in shooter table
 		while ($i < sizeof($punches)){
 			if ($tableData[$j]['score'] == $scoreList[$i]){
-				$tableData[$j]['award'] = $class . strval($i+1);
+				$tableData[$j]['awardClass'] = $class . strval($i+1);
 				$tableData[$j]['punches'] = $punches[$i];
 				$j++;
 			}else {
@@ -203,7 +206,7 @@ $eventId = $_GET['eventId'];
 			}
 		}
 		while ($i >= sizeof($punches) && $j < $shooterCount){
-			$tableData[$j]['award'] = $tableData[$j]['punches'] = '-';
+			$tableData[$j]['awardClass'] = $tableData[$j]['punches'] = '-';
 			$j++;
 		};
 		
@@ -212,10 +215,10 @@ $eventId = $_GET['eventId'];
 			$class = 'Master';
 		}
 		$shooterCountString = $shooterCount;
-		if ($shooterCountString = 1){
-			$shooterCountString .= $shooterCountString . ' Shooter';
+		if ($shooterCountString == 1){
+			$shooterCountString .= ' Shooter';
 		}else{
-			$shooterCountString .= $shooterCountString . ' Shooters';
+			$shooterCountString .= ' Shooters';
 		}
 		echo '<table border=\'1\'><thead><td colspan=\'3\'>' . $class . ' Class - ' . $shooterCountString . '</td><td>Award</td><td>Punches</td></thead>';
 		for ($k = 0; $k < $shooterCount ; $k++){
@@ -223,11 +226,12 @@ $eventId = $_GET['eventId'];
 			echo '<td class=\'firstName\'>' . $tableData[$k]['firstName'] . '</td>';
 			echo '<td class=\'lastName\'>' . $tableData[$k]['lastName'] . '</td>';
 			echo '<td class=\'score\'>' . $tableData[$k]['score'] . '</td>';
-			echo '<td class=\'award\'>' . $tableData[$k]['award'] . '</td>';
+			echo '<td class=\'awardClass\'>' . $tableData[$k]['awardClass'] . '</td>';
 			echo '<td class=\'punches\'>' . $tableData[$k]['punches'] . '</td>';
 			echo '</tr>';
 		}
 		echo '</table>';
+		return $tableData;
 	}//end function makeClassTable
 	
 	makeClassTable($eventId,'M');
