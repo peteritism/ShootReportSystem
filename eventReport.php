@@ -36,7 +36,9 @@ $eventId = $_GET['eventId'];
 		td.lastName{
 			text-align:left;
 		}
-		tr:nth-child(even) {background: #DDD}
+		tr:nth-child(even) {
+			background: #DDD;
+		}
 	</style>
 </head>
 
@@ -119,31 +121,48 @@ $eventId = $_GET['eventId'];
 		echo '<td class=\'score\'>' . $row2['totalScore'] . '</td>';
 	}
 	echo '</table>';
+
+	$scoreReportData = array();
+
+	function makeTable ($eventId,$searchBy,$searchParameter/*,$headersArray*/){
+		//this is shit
+		drawTable(
+			mergeTableDataAwards(
+				giveAwards(
+					getShooters($eventId, $searchBy, $searchParameter),
+				$searchBy,
+				$searchParameter),
+			$searchParameter),
+		$searchBy,
+		$searchParameter);
+
+	} //end makeTable
 	
-	function makeClassTable ($eventId,$class){
-		//number of shooter in class
+	function getShooters($eventId, $searchBy, $searchParameter){
+		//number of shooters by searchBy
 		$query = 	'SELECT COUNT(*)
 					AS numberOfShooters
 					FROM shooter
 					JOIN eventshooter
 					ON eventshooter.shooterId  = shooter.id
-					WHERE eventshooter.class=\'' . $class . '\'
+					WHERE eventshooter.' . $searchBy . '=\'' . $searchParameter . '\'
 					AND eventshooter.shootEventId =' . $eventId;
 		$result = dbquery($query);
 		$row = mysqli_fetch_assoc($result);
 		$shooterCount = $row['numberOfShooters'];
 		
-		//get shooters in class
+		//get shooters by searchBy
 		$query =	'SELECT *
 					FROM shooter
 					JOIN eventshooter
 					ON eventshooter.shooterId  = shooter.id
-					WHERE eventshooter.class=\'' . $class . '\'
+					WHERE eventshooter.' . $searchBy . '=\'' . $searchParameter . '\'
 					AND eventshooter.shootEventId =' . $eventId;
 		$result = dbquery($query);
 		$tableData = array();
 		$i = 0;
 		while ($row = mysqli_fetch_array($result)){
+			//ust add score to array instead of creating new array?
 			$tableData[$i]['firstName'] = $row['firstName'];
 			$tableData[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
 			$tableData[$i]['nscaId'] = $row['nscaId']; 		//merged into nsca report
@@ -159,14 +178,23 @@ $eventId = $_GET['eventId'];
 			$tableData[$i]['score'] = $row2['totalScore'];
 			$i++;
 		}
+		$getShootersReturn = array($tableData,$shooterCount);
+		return $getShootersReturn;
+	} //end getShooters
+	
+	function giveAwards($getShooterReturn,$searchBy,$searchParameter){
+		//might be possible to do this with a strategic db query
 		//sort by scores DESC
+		$tableData = $getShooterReturn[0];
+		$shooterCount = $getShooterReturn[1];
+		
 		foreach ($tableData as $val){
 			$tmp[] = $val['score'];
 		}
 		array_multisort($tmp, SORT_DESC, $tableData);
-		//put top six scores in an array
+		//put one of each score in array in descending order
 		$scoreList = array();
-		$last = 101;	//higher than any possible score
+		$last = 101;	//higher than any possible score ***should not be statically set //makes foreach statement true for first value
 		foreach ($tableData as $val){
 			//need six for shoots with more than 45 shooters per class
 			$current = $val['score'];
@@ -175,44 +203,71 @@ $eventId = $_GET['eventId'];
 				$last = $current;
 			}
 		}
-		//determine punches/award based on amount of shooters
-		if ($shooterCount > 0 && $shooterCount <= 2){
-			$punches = array();
-		}
-		if ($shooterCount >= 3 && $shooterCount <= 9){
-			$punches = array(1);
-		}
-		if ($shooterCount >= 10 && $shooterCount <= 14){
-			$punches = array(2,1);
-		}
-		if ($shooterCount >= 15 && $shooterCount <= 29){
-			$punches = array(4,2,1);
-		}
-		if ($shooterCount >= 30 && $shooterCount <= 44){
-			$punches = array(4,4,2,1);
-		}
-		if ($shooterCount >= 45){
-			$punches = array(4,4,4,3,2,1);
-		}
-		$i = 0; //location in punches and scoreList
-		$j = 0; //location in shooter table
-		while ($i < sizeof($punches)){
-			if ($tableData[$j]['score'] == $scoreList[$i]){
-				$tableData[$j]['awardClass'] = $class . strval($i+1);
-				$tableData[$j]['punches'] = $punches[$i];
-				$j++;
-			}else {
-				$i++;
+		if($searchBy == 'class'){
+			//determine punches/award based on amount of shooters
+			if ($shooterCount >= 0 && $shooterCount <= 2){
+				$punches = array();
 			}
-		}
-		while ($i >= sizeof($punches) && $j < $shooterCount){
-			$tableData[$j]['awardClass'] = $tableData[$j]['punches'] = '-';
-			$j++;
-		};
+			if ($shooterCount >= 3 && $shooterCount <= 9){
+				$punches = array(1);
+			}
+			if ($shooterCount >= 10 && $shooterCount <= 14){
+				$punches = array(2,1);
+			}
+			if ($shooterCount >= 15 && $shooterCount <= 29){
+				$punches = array(4,2,1);  
+			}
+			if ($shooterCount >= 30 && $shooterCount <= 44){
+				$punches = array(4,4,2,1);
+			}
+			if ($shooterCount >= 45){
+				$punches = array(4,4,4,3,2,1);
+			}
+			$i = 0; //location in punches and scoreList
+			$j = 0; //location in shooter table
+			while ($i < sizeof($punches)){
+				if ($tableData[$j]['score'] == $scoreList[$i]){
+					$tableData[$j]['awardClass'] = $searchParameter . strval($i+1);
+					$tableData[$j]['punches'] = $punches[$i];
+					$j++;
+				}else {
+					$i++;
+				}
+			}
+			while ($i >= sizeof($punches) && $j < $shooterCount){
+				$tableData[$j]['awardClass'] = $tableData[$j]['punches'] = '-';
+				$j++;
+			};
+		}else if($searchBy == 'concurrent'){
+			//this will be more complicated when I implement points system, but for now this will do.
+			
+
+		}else if($searchBy == 'concurrentLady'){
+			//append award instead of settign award
 		
+		}
+		
+		return array($tableData,$shooterCount); 
+	} //end giveAwards
+	
+	function mergeTableDataAwards($tableDataAndShooterCount){
+		 //end mergeTableData
+		// $mergeTableDataAwards = array($mergedData, $tableData)
+		//return $mergeTableDataAwardsReturn;
+		return $tableDataAndShooterCount;
+	}
+
+	function drawTable($tableDataAndShooterCount, $searchBy, $searchParameter){
+		
+		$tableData = $tableDataAndShooterCount[0];
+		$shooterCount = $tableDataAndShooterCount[1];
+		//dump tableData into scoreReport array 
+		//global $scoreReportData;
+		//$scoreReportData = array_merge($scoreReportData, $tableData);
+
 		//draw table
-		if ($class == 'M'){
-			$class = 'Master';
+		if ($searchBy == 'M'){
+			$searchBy = 'Master';
 		}
 		$shooterCountString = $shooterCount;
 		if ($shooterCountString == 1){
@@ -220,7 +275,7 @@ $eventId = $_GET['eventId'];
 		}else{
 			$shooterCountString .= ' Shooters';
 		}
-		echo '<table border=\'1\'><thead><td colspan=\'3\'>' . $class . ' Class - ' . $shooterCountString . '</td><td>Award</td><td>Punches</td></thead>';
+		echo '<table border=\'1\'><thead><td colspan=\'3\'>' . $searchParameter . ' Class - ' . $shooterCountString . '</td><td>Award</td><td>Punches</td></thead>';
 		for ($k = 0; $k < $shooterCount ; $k++){
 			echo '<tr>';
 			echo '<td class=\'firstName\'>' . $tableData[$k]['firstName'] . '</td>';
@@ -232,15 +287,28 @@ $eventId = $_GET['eventId'];
 		}
 		echo '</table>';
 		return $tableData;
-	}//end function makeClassTable
+	} //end drawTable
+
+	//end function makeClassTableh
 	
-	makeClassTable($eventId,'M');
-	makeClassTable($eventId,'AA');
-	makeClassTable($eventId,'A');
-	makeClassTable($eventId,'B');
-	makeClassTable($eventId,'C');
-	makeClassTable($eventId,'D');
-	makeClassTable($eventId,'E');
+	makeTable($eventId,'class','M');
+	makeTable($eventId,'class','AA');
+	makeTable($eventId,'class','A');
+	makeTable($eventId,'class','B');
+	makeTable($eventId,'class','C');
+	makeTable($eventId,'class','D');
+	makeTable($eventId,'class','E');
+	
+	//makeTable($eventId,'concurrent','SJ');
+	//makeTable($eventId,'concurrent','JR');
+	//maketTable($eventId,'concurrent','VT');
+	//makeTable($eventId,'concurrent','SV');
+	//makeTable($eventId,'concurrent','SSV');
+	//makeTable($eventId,'concurrentLady','1');
+	//makeTable($eventId,'concurrent',''); //open concurrency - to calculate All-X points
+
+	
+	
 	
 	?>
 	
