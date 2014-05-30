@@ -28,3 +28,21 @@ eventShooterEditor
 - [x] add lady to concurrent field &LY
 
 scoreReport
+- [ ] add points system for concurrents
+	- [ ] properly calculate points for multiple concurrencies (i.e., lady + concurrent)
+- [ ] add option winners (no money, only indicate if won/percentage take)
+- [ ] add hidden data (not really private per se)
+	- [ ] add official score report
+	- [ ] add money calculations
+		- [ ] calculate NSCA target fees
+		- [ ] calculate income
+		- [ ] calculate money for option winners
+			- [ ] generate list of names/address for money winners
+				-possibly indicated paid status (though this would be more complicated and require all sorts of database reorganization to be done properly and it would still be prone to problems)
+- [ ] add some JS to get tables the same size
+
+shootReport
+- [ ] add shootReport
+
+clubReport
+- [ ] add clubReport
