@@ -353,8 +353,140 @@ $eventId = $_GET['eventId'];
 	makeTable($eventId,'concurrent','SSV');
 	makeTable($eventId,'concurrentLady','1');
 	//makeTable($eventId,'concurrent',''); //open concurrency - to calculate All-X points
-
 	
+	//HOA
+	//get shooters with hoa
+	//find highest score
+	//calculate percentage winnings
+	//calculate money winnings
+	
+	//HIC
+	//get shooters with hic per class
+	//same as above
+	
+	//lewis
+	//get shooters with lewis
+	//get shooterCount with lewis
+	//get lewis groups
+	//order shooters by score ascending **important
+	
+	
+	//
+	//Lewis Calculation
+	//
+	$shooterArray = array(); //prevent crash without actual data
+	
+	$shooterCount = 23;  //total shooters with Lewis option
+	$lewisGroups = 3; //magical sql query;  //Lewis Groups from event data
+	$shooterCountModular = $shooterCount % $lewisGroups;  //left over shooters if broken into even groups
+	$groupShooterCount = ( $shooterCount - $shooterCountModular ) / $lewisGroups;  //Lewis group size if evenly divisible
+	$lewisGroupShootersCounts = array();  //size of each Lewis group from lowest score to highest
+	$x = 1; //$x - group number
+	
+	while ($x <= $lewisGroups){
+		if ($shooterCountModular > 0){
+			$lewisGroupShooterCount[$x] = $groupShooterCount + 1;
+			$shooterCountModular -= 1;
+		}else {
+			$lewisGroupShooterCount[$x] = $groupShooterCount;
+		}
+	}  //end while
+	//now there should be an array of group sizes
+	$x = 0;
+	$y = $lewisGroups;
+	//look at each value in the  $lewisGroupShooterCount array
+	foreach ($lewisGroupsShooterCounts as $shootersLeftInGroup){
+		//set shooters' group
+		while ($shootersLeftInGroup > 0 ){
+			$shooterArray[$x]['lewisGroup'] = $y;
+			$shootersLeftInGroup -= 1;
+			$y -= 1;
+			$x += 1;
+		}
+
+	}
+	$lastScore = $currentGroup = $originalGroup = $highestGroup = -1; //set to impossible
+	 $scoresBelowLine = $scoresAboveLine = 0;
+	foreach ($shooterArray as $shooter){
+		$currentScore = $shooter['score'];
+		if ($currentScore == $lastScore){
+			$currentGroup = $shooter['group'];
+			if ($currentGroup == $orginalGroup){
+				$scoresBelowLine += 1;
+			}else{
+				$scoresAboveLine += 1;
+				$highestGroup = $currentGroup;
+			}
+		}else{ //if scores are not the same
+			
+			if ($currentGroup <> $highestGroup){ //currentGroup is carried over from last score
+				//if there are more ties below the line or the same amount above and below
+				if ($scoresBelowLine >= $scoresAboveLine){
+					//append '$lastScore' => '$originalGroup' to some array
+				//if there are more ties above the line
+				} else {
+					//append '$lastScore' => '$highestGroup' to some array
+				}
+			}else{
+				$scoresAboveLine = $scoresBelowLine = 0;
+			}
+			$originalGroup = $shooter['group'];
+			$lastScore = $currentScore;
+		}
+	}//end outer foreach
+	//do another double foreach with the ties array and change groups
+	//award a percentage
+	//calculate money
+	
+	
+	//
+	//end Lewis Calculation
+	//
+	
+	
+	/*
+	$shooterArray = array(
+		array[index](
+			'name' => name
+			'score' => score
+			'group' => group
+			'award' => award as decimal (100% = 1)
+		)
+	)
+	99 - 3
+	98 - 3
+	98 - 3
+	98 - 3
+	97 - 3
+	
+	96 - 2
+	96 - 2
+	94 - 2
+	92 - 2
+	92 - 2
+	
+	92 - 1
+	92 - 1
+	91 - 1
+	87 - 1
+	86 - 1
+	86 - 1
+	
+	*/
+	
+	
+	
+	
+	
+	
+	/*foreach ($tableData as $val){
+		//need six for shoots with more than 45 shooters per class
+		$current = $shooter['score'];
+		if ($current < $last){
+			$scoreList[] = $current;
+			$last = $current;
+		}
+	}*/
 	
 	
 	?>
