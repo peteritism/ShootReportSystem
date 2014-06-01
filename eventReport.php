@@ -127,7 +127,7 @@ $eventId = $_GET['eventId'];
 	function makeTable ($eventId,$searchBy,$searchParameter/*,$headersArray*/){
 		//this is shit
 		drawTable(
-			mergeTableDataAwards(
+			mergeshooterArrayAwards(
 				giveAwards(
 					getShooters($eventId, $searchBy, $searchParameter),
 				$searchBy,
@@ -168,15 +168,15 @@ $eventId = $_GET['eventId'];
 					$whereClause . '
 					AND eventshooter.shootEventId =' . $eventId;
 		$result = dbquery($query);
-		$tableData = array();
+		$shooterArray = array();
 		$i = 0;
 		while ($row = mysqli_fetch_array($result)){
 			//ust add score to array instead of creating new array?
-			$tableData[$i]['firstName'] = $row['firstName'];
-			$tableData[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
-			$tableData[$i]['nscaId'] = $row['nscaId']; 		//merged into nsca report
-			$tableData[$i]['state'] = $row['state'];		//merged into nsca report
-			$tableData[$i]['shooterId'] = $row['shooterId'];//merged into nsca report
+			$shooterArray[$i]['firstName'] = $row['firstName'];
+			$shooterArray[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
+			$shooterArray[$i]['nscaId'] = $row['nscaId']; 		//merged into nsca report
+			$shooterArray[$i]['state'] = $row['state'];		//merged into nsca report
+			$shooterArray[$i]['shooterId'] = $row['shooterId'];//merged into nsca report
 			//get scores
 			$query2 = 	'SELECT SUM(targetsBroken)
 						AS totalScore
@@ -184,28 +184,28 @@ $eventId = $_GET['eventId'];
 						WHERE eventShooterId=' . $row['id'];
 			$result2 = dbquery($query2);
 			$row2 = mysqli_fetch_assoc($result2);
-			$tableData[$i]['score'] = $row2['totalScore'];
+			$shooterArray[$i]['score'] = $row2['totalScore'];
 			$i++;
 		}
-		$getShootersReturn = array($tableData,$shooterCount);
+		$getShootersReturn = array($shooterArray,$shooterCount);
 		return $getShootersReturn;
 	} //end getShooters
 	
 	function giveAwards($getShooterReturn,$searchBy,$searchParameter){
 		//might be possible to do this with a strategic db query
 		//sort by scores DESC
-		$tableData = $getShooterReturn[0];
+		$shooterArray = $getShooterReturn[0];
 		$shooterCount = $getShooterReturn[1];
 		
 		if ($shooterCount > 0){
-			foreach ($tableData as $val){
+			foreach ($shooterArray as $val){
 				$tmp[] = $val['score'];
 			}
-			array_multisort($tmp, SORT_DESC, $tableData);
+			array_multisort($tmp, SORT_DESC, $shooterArray);
 			//put one of each score in array in descending order
 			$scoreList = array();
 			$last = 10000;
-			foreach ($tableData as $val){
+			foreach ($shooterArray as $val){
 				//need six for shoots with more than 45 shooters per class
 				$current = $val['score'];
 				if ($current < $last){
@@ -237,16 +237,16 @@ $eventId = $_GET['eventId'];
 			$i = 0; //location in punches and scoreList
 			$j = 0; //location in shooter table
 			while ($i < sizeof($punches)){
-				if ($tableData[$j]['score'] == $scoreList[$i]){
-					$tableData[$j]['awardClass'] = $searchParameter . strval($i+1);
-					$tableData[$j]['punches'] = $punches[$i];
+				if ($shooterArray[$j]['score'] == $scoreList[$i]){
+					$shooterArray[$j]['awardClass'] = $searchParameter . strval($i+1);
+					$shooterArray[$j]['punches'] = $punches[$i];
 					$j++;
 				}else {
 					$i++;
 				}
 			}
 			while ($i >= sizeof($punches) && $j < $shooterCount){
-				$tableData[$j]['awardClass'] = $tableData[$j]['punches'] = '-';
+				$shooterArray[$j]['awardClass'] = $shooterArray[$j]['punches'] = '-';
 				$j++;
 			};
 		}else if($searchBy == 'concurrent' || $searchBy == 'concurrentLady'){
@@ -256,16 +256,16 @@ $eventId = $_GET['eventId'];
 			$i = 0; //location in punches and scoreList
 			$j = 0; //location in shooter table
 			while ($i < sizeof($concurrentPoints)){
-				if (isset($tableData[$j]['score']) && $tableData[$j]['score'] == $scoreList[$i]){
-					$tableData[$j]['awardConcurrent'] = $searchParameter . strval($i+1);
-					$tableData[$j]['concurrentPoints'] = $concurrentPoints[$i];
+				if (isset($shooterArray[$j]['score']) && $shooterArray[$j]['score'] == $scoreList[$i]){
+					$shooterArray[$j]['awardConcurrent'] = $searchParameter . strval($i+1);
+					$shooterArray[$j]['concurrentPoints'] = $concurrentPoints[$i];
 					$j++;
 				}else {
 					$i++;
 				}
 			}
 			while ($i >= sizeof($concurrentPoints) && $j < $shooterCount){
-				$tableData[$j]['awardConcurrent'] = $tableData[$j]['concurrentPoints'] = '-';
+				$shooterArray[$j]['awardConcurrent'] = $shooterArray[$j]['concurrentPoints'] = '-';
 				$j++;
 			};
 			
@@ -275,23 +275,23 @@ $eventId = $_GET['eventId'];
 		
 		//}
 		
-		return array($tableData,$shooterCount); 
+		return array($shooterArray,$shooterCount); 
 	} //end giveAwards
 	
-	function mergeTableDataAwards($tableDataAndShooterCount){
-		// $mergeTableDataAwards = array($mergedData, $tableData)
-		//return $mergeTableDataAwardsReturn;
-		return $tableDataAndShooterCount;
-	}//end mergeTableDataAwards
+	function mergeshooterArrayAwards($shooterArrayAndShooterCount){
+		// $mergeshooterArrayAwards = array($mergedData, $shooterArray)
+		//return $mergeshooterArrayAwardsReturn;
+		return $shooterArrayAndShooterCount;
+	}//end mergeshooterArrayAwards
 
 
-	function drawTable($tableDataAndShooterCount, $searchBy, $searchParameter){
+	function drawTable($shooterArrayAndShooterCount, $searchBy, $searchParameter){
 		
-		$tableData = $tableDataAndShooterCount[0];
-		$shooterCount = $tableDataAndShooterCount[1];
-		//dump tableData into scoreReport array 
+		$shooterArray = $shooterArrayAndShooterCount[0];
+		$shooterCount = $shooterArrayAndShooterCount[1];
+		//dump shooterArray into scoreReport array 
 		//global $scoreReportData;
-		//$scoreReportData = array_merge($scoreReportData, $tableData);
+		//$scoreReportData = array_merge($scoreReportData, $shooterArray);
 
 		//draw table
 		if ($shooterCount > 0){
@@ -308,11 +308,11 @@ $eventId = $_GET['eventId'];
 				echo '<table border=\'1\'><thead><td colspan=\'3\'>' . $searchParameter . ' Class - ' . $shooterCountString . '</td><td>Award</td><td>Punches</td></thead>';
 				for ($k = 0; $k < $shooterCount ; $k++){
 					echo '<tr>';
-					echo '<td class=\'firstName\'>' . $tableData[$k]['firstName'] . '</td>';
-					echo '<td class=\'lastName\'>' . $tableData[$k]['lastName'] . '</td>';
-					echo '<td class=\'score\'>' . $tableData[$k]['score'] . '</td>';
-					echo '<td class=\'awardClass\'>' . $tableData[$k]['awardClass'] . '</td>';
-					echo '<td class=\'punches\'>' . $tableData[$k]['punches'] . '</td>';
+					echo '<td class=\'firstName\'>' . $shooterArray[$k]['firstName'] . '</td>';
+					echo '<td class=\'lastName\'>' . $shooterArray[$k]['lastName'] . '</td>';
+					echo '<td class=\'score\'>' . $shooterArray[$k]['score'] . '</td>';
+					echo '<td class=\'awardClass\'>' . $shooterArray[$k]['awardClass'] . '</td>';
+					echo '<td class=\'punches\'>' . $shooterArray[$k]['punches'] . '</td>';
 					echo '</tr>';
 				}
 				echo '</table>';
@@ -324,21 +324,21 @@ $eventId = $_GET['eventId'];
 
 				for ($k = 0; $k < $shooterCount ; $k++){
 					echo '<tr>';
-					echo '<td class=\'firstName\'>' . $tableData[$k]['firstName'] . '</td>';
-					echo '<td class=\'lastName\'>' . $tableData[$k]['lastName'] . '</td>';
-					echo '<td class=\'score\'>' . $tableData[$k]['score'] . '</td>';
-					echo '<td class=\'awardClass\'>' . $tableData[$k]['awardConcurrent'] . '</td>';
+					echo '<td class=\'firstName\'>' . $shooterArray[$k]['firstName'] . '</td>';
+					echo '<td class=\'lastName\'>' . $shooterArray[$k]['lastName'] . '</td>';
+					echo '<td class=\'score\'>' . $shooterArray[$k]['score'] . '</td>';
+					echo '<td class=\'awardClass\'>' . $shooterArray[$k]['awardConcurrent'] . '</td>';
 					echo '</tr>';
 				}
 
 			}
 		}
-		//return $tableData;
+		//return $shooterArray;
 	} //end drawTable
 
 	//end function makeClassTableh
 	
-	makeTable($eventId,'class','M');
+	/*makeTable($eventId,'class','M');
 	makeTable($eventId,'class','AA');
 	makeTable($eventId,'class','A');
 	makeTable($eventId,'class','B');
@@ -353,6 +353,8 @@ $eventId = $_GET['eventId'];
 	makeTable($eventId,'concurrent','SSV');
 	makeTable($eventId,'concurrentLady','1');
 	//makeTable($eventId,'concurrent',''); //open concurrency - to calculate All-X points
+	
+	*/
 	
 	//HOA
 	//get shooters with hoa
@@ -374,66 +376,154 @@ $eventId = $_GET['eventId'];
 	//
 	//Lewis Calculation
 	//
-	$shooterArray = array(); //prevent crash without actual data
+	//these queries should be moved to getShooters
+	$searchBy = 'lewisOption';
+	$searchParameter = 1;
+	$whereClause = 'WHERE eventshooter.' . $searchBy . '=\'' . $searchParameter . '\'';
+
+	$query = 	'SELECT COUNT(*)
+				AS numberOfShooters
+				FROM shooter
+				JOIN eventshooter
+				ON eventshooter.shooterId  = shooter.id ' .
+				$whereClause . '
+				AND eventshooter.shootEventId =' . $eventId;
+	$result = dbquery($query);
+	$row = mysqli_fetch_assoc($result);
+	$shooterCount = $row['numberOfShooters'];
 	
-	$shooterCount = 23;  //total shooters with Lewis option
-	$lewisGroups = 3; //magical sql query;  //Lewis Groups from event data
+	//get shooters by searchBy
+	$query =	'SELECT *
+				FROM shooter
+				JOIN eventshooter
+				ON eventshooter.shooterId  = shooter.id ' .
+				$whereClause . '
+				AND eventshooter.shootEventId =' . $eventId;
+	$result = dbquery($query);
+	$i = 0;
+	while ($row = mysqli_fetch_array($result)){
+		$shooterArray[$i]['firstName'] = $row['firstName'];
+		$shooterArray[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
+		//get scores
+		$query2 = 	'SELECT SUM(targetsBroken)
+					AS totalScore
+					FROM shootereventstationscore
+					WHERE eventShooterId=' . $row['id'];
+		$result2 = dbquery($query2);
+		$row2 = mysqli_fetch_assoc($result2);
+		$shooterArray[$i]['score'] = $row2['totalScore'];
+		$i++;
+	}
+
+	foreach ($shooterArray as $val){
+		$tmp[] = $val['score'];
+	}
+	array_multisort($tmp, SORT_ASC, $shooterArray);
+
+	$lewisGroups = 4; //magical sql query;  //Lewis Groups from event data
 	$shooterCountModular = $shooterCount % $lewisGroups;  //left over shooters if broken into even groups
 	$groupShooterCount = ( $shooterCount - $shooterCountModular ) / $lewisGroups;  //Lewis group size if evenly divisible
-	$lewisGroupShootersCounts = array();  //size of each Lewis group from lowest score to highest
+	$groupCounts = array();  //size of each Lewis group from lowest score to highest
 	$x = 1; //$x - group number
+	
+	echo '</br>' . $shooterCount . '</br>';
 	
 	while ($x <= $lewisGroups){
 		if ($shooterCountModular > 0){
-			$lewisGroupShooterCount[$x] = $groupShooterCount + 1;
+			$groupCounts[$x] = $groupShooterCount + 1;
 			$shooterCountModular -= 1;
 		}else {
-			$lewisGroupShooterCount[$x] = $groupShooterCount;
+			$groupCounts[$x] = $groupShooterCount;
 		}
+		$x++;
 	}  //end while
 	//now there should be an array of group sizes
+	
+	echo '</br></br>';
+	print_r($groupCounts);
+	echo '</br></br>';
+
+	//assign groupings
 	$x = 0;
 	$y = $lewisGroups;
 	//look at each value in the  $lewisGroupShooterCount array
-	foreach ($lewisGroupsShooterCounts as $shootersLeftInGroup){
+	foreach ($groupCounts as $shootersLeftInGroup){
 		//set shooters' group
 		while ($shootersLeftInGroup > 0 ){
 			$shooterArray[$x]['lewisGroup'] = $y;
 			$shootersLeftInGroup -= 1;
-			$y -= 1;
 			$x += 1;
 		}
-
+		$y -= 1;
 	}
-	$lastScore = $currentGroup = $originalGroup = $highestGroup = -1; //set to impossible
-	 $scoresBelowLine = $scoresAboveLine = 0;
+	
+	//groupings for 
+	$originalGroup = $shooterArray[0]['lewisGroup'];
+	$lastScore = $currentGroup = $highestGroup = -1; //set to impossible
+	$scoresBelowLine = $scoresAboveLine = 0;
 	foreach ($shooterArray as $shooter){
+	
+		print_r($shooter);
+		echo '</br>';
+		
 		$currentScore = $shooter['score'];
+		$currentGroup = $shooter['lewisGroup'];
+		
+		echo $lastScore;
+		
 		if ($currentScore == $lastScore){
-			$currentGroup = $shooter['group'];
-			if ($currentGroup == $orginalGroup){
+			if ($currentGroup == $originalGroup){
 				$scoresBelowLine += 1;
 			}else{
 				$scoresAboveLine += 1;
 				$highestGroup = $currentGroup;
 			}
-		}else{ //if scores are not the same
-			
-			if ($currentGroup <> $highestGroup){ //currentGroup is carried over from last score
-				//if there are more ties below the line or the same amount above and below
-				if ($scoresBelowLine >= $scoresAboveLine){
-					//append '$lastScore' => '$originalGroup' to some array
+		}else if ($currentGroup <> $highestGroup){ //if scores are not the same and groups are different
+				if ($scoresBelowLine == 0 && $scoresBelowLine == 0){
+					//do nothing
+					$highestGroup = $currentGroup;
+				}else if ($scoresBelowLine >= $scoresAboveLine){
+					$lewisTies[] = array($lastScore => $originalGroup);
+					echo ' v';
+					$scoresAboveLine = $scoresBelowLine = 0;
+
 				//if there are more ties above the line
-				} else {
-					//append '$lastScore' => '$highestGroup' to some array
+				}else {
+					$lewisTies[] = array($lastScore => $highestGroup);
+					echo ' ^';
+					$scoresAboveLine = $scoresBelowLine = 0;
 				}
-			}else{
-				$scoresAboveLine = $scoresBelowLine = 0;
-			}
-			$originalGroup = $shooter['group'];
-			$lastScore = $currentScore;
+				$originalGroup = $currentGroup;
+		}else{
+			$scoresAboveLine = $scoresBelowLine = 0;	
 		}
-	}//end outer foreach
+		$originalGroup = $shooter['lewisGroup'];
+	
+	
+	
+		
+		
+		//current score same as last
+			//current group = starting group 
+				//belowLine + 1
+			//current group <> starting group
+				//aboveLine + 1
+				//highestGroup = currentGroup
+		//current score different than last
+			//no tie - belowLine and aboveLine = 0
+				//$highest
+			//tie
+			
+		
+		
+
+		echo ' --- ' . $currentScore . ' - ' . $currentGroup . ' - ' . $originalGroup . ' - ' . $highestGroup . ' - ' . $scoresBelowLine . ' - ' . $scoresAboveLine;
+		echo '</br>';
+		
+		$lastScore = $currentScore;
+	//}end outer foreach
+	echo '</br>';
+	print_r($lewisTies);
 	//do another double foreach with the ties array and change groups
 	//award a percentage
 	//calculate money
@@ -442,52 +532,6 @@ $eventId = $_GET['eventId'];
 	//
 	//end Lewis Calculation
 	//
-	
-	
-	/*
-	$shooterArray = array(
-		array[index](
-			'name' => name
-			'score' => score
-			'group' => group
-			'award' => award as decimal (100% = 1)
-		)
-	)
-	99 - 3
-	98 - 3
-	98 - 3
-	98 - 3
-	97 - 3
-	
-	96 - 2
-	96 - 2
-	94 - 2
-	92 - 2
-	92 - 2
-	
-	92 - 1
-	92 - 1
-	91 - 1
-	87 - 1
-	86 - 1
-	86 - 1
-	
-	*/
-	
-	
-	
-	
-	
-	
-	/*foreach ($tableData as $val){
-		//need six for shoots with more than 45 shooters per class
-		$current = $shooter['score'];
-		if ($current < $last){
-			$scoreList[] = $current;
-			$last = $current;
-		}
-	}*/
-	
 	
 	?>
 	
