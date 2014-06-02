@@ -377,158 +377,170 @@ $eventId = $_GET['eventId'];
 	//Lewis Calculation
 	//
 	//these queries should be moved to getShooters
-	$searchBy = 'lewisOption';
-	$searchParameter = 1;
-	$whereClause = 'WHERE eventshooter.' . $searchBy . '=\'' . $searchParameter . '\'';
-
-	$query = 	'SELECT COUNT(*)
-				AS numberOfShooters
-				FROM shooter
-				JOIN eventshooter
-				ON eventshooter.shooterId  = shooter.id ' .
-				$whereClause . '
-				AND eventshooter.shootEventId =' . $eventId;
+	$query = '	SELECT lewisGroups
+				FROM shootevent
+				WHERE id=' . $eventId;
 	$result = dbquery($query);
 	$row = mysqli_fetch_assoc($result);
-	$shooterCount = $row['numberOfShooters'];
+	$lewisGroups = $row['lewisGroups'];
 	
-	//get shooters by searchBy
-	$query =	'SELECT *
-				FROM shooter
-				JOIN eventshooter
-				ON eventshooter.shooterId  = shooter.id ' .
-				$whereClause . '
-				AND eventshooter.shootEventId =' . $eventId;
-	$result = dbquery($query);
-	$i = 0;
-	while ($row = mysqli_fetch_array($result)){
-		$shooterArray[$i]['firstName'] = $row['firstName'];
-		$shooterArray[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
-		//get scores
-		$query2 = 	'SELECT SUM(targetsBroken)
-					AS totalScore
-					FROM shootereventstationscore
-					WHERE eventShooterId=' . $row['id'];
-		$result2 = dbquery($query2);
-		$row2 = mysqli_fetch_assoc($result2);
-		$shooterArray[$i]['score'] = $row2['totalScore'];
-		$i++;
+	if(!isset($lewisGroups) || $lewisGroups == 0){
+		echo 'Lewis Groups not set';
 	}
+	else{
+		$searchBy = 'lewisOption';
+		$searchParameter = 1;
+		$whereClause = 'WHERE eventshooter.' . $searchBy . '=\'' . $searchParameter . '\'';
 
-	foreach ($shooterArray as $val){
-		$tmp[] = $val['score'];
-	}
-	array_multisort($tmp, SORT_ASC, $shooterArray);
+		$query = 	'SELECT COUNT(*)
+					AS numberOfShooters
+					FROM shooter
+					JOIN eventshooter
+					ON eventshooter.shooterId  = shooter.id ' .
+					$whereClause . '
+					AND eventshooter.shootEventId =' . $eventId;
+		$result = dbquery($query);
+		$row = mysqli_fetch_assoc($result);
+		$shooterCount = $row['numberOfShooters'];
 
-	$lewisGroups = 4; //magical sql query;  //Lewis Groups from event data
-	$shooterCountModular = $shooterCount % $lewisGroups;  //left over shooters if broken into even groups
-	$groupShooterCount = ( $shooterCount - $shooterCountModular ) / $lewisGroups;  //Lewis group size if evenly divisible
-	$groupCounts = array();  //size of each Lewis group from lowest score to highest
-	$x = 1; //$x - group number
-	
-	echo '</br>' . $shooterCount . '</br>';
-	
-	while ($x <= $lewisGroups){
-		if ($shooterCountModular > 0){
-			$groupCounts[$x] = $groupShooterCount + 1;
-			$shooterCountModular -= 1;
-		}else {
-			$groupCounts[$x] = $groupShooterCount;
+		//get shooters by searchBy
+		$query =	'SELECT *
+					FROM shooter
+					JOIN eventshooter
+					ON eventshooter.shooterId  = shooter.id ' .
+					$whereClause . '
+					AND eventshooter.shootEventId =' . $eventId;
+		$result = dbquery($query);
+		$i = 0;
+		while ($row = mysqli_fetch_array($result)){
+			$shooterArray[$i]['firstName'] = $row['firstName'];
+			$shooterArray[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
+			//get scores
+			$query2 = 	'SELECT SUM(targetsBroken)
+						AS totalScore
+						FROM shootereventstationscore
+						WHERE eventShooterId=' . $row['id'];
+			$result2 = dbquery($query2);
+			$row2 = mysqli_fetch_assoc($result2);
+			$shooterArray[$i]['score'] = $row2['totalScore'];
+			$i++;
 		}
-		$x++;
-	}  //end while
-	//now there should be an array of group sizes
-	
-	echo '</br></br>';
-	print_r($groupCounts);
-	echo '</br></br>';
 
-	//assign groupings
-	$x = 0;
-	$y = $lewisGroups;
-	//look at each value in the  $lewisGroupShooterCount array
-	foreach ($groupCounts as $shootersLeftInGroup){
-		//set shooters' group
-		while ($shootersLeftInGroup > 0 ){
-			$shooterArray[$x]['lewisGroup'] = $y;
-			$shootersLeftInGroup -= 1;
-			$x += 1;
+		foreach ($shooterArray as $val){
+			$tmp[] = $val['score'];
 		}
-		$y -= 1;
-	}
-	
-	//groupings for 
-	$originalGroup = $shooterArray[0]['lewisGroup'];
-	$lastScore = $currentGroup = $highestGroup = -1; //set to impossible
-	$scoresBelowLine = $scoresAboveLine = 0;
-	foreach ($shooterArray as $shooter){
-	
-		print_r($shooter);
-		echo '</br>';
-		
-		$currentScore = $shooter['score'];
-		$currentGroup = $shooter['lewisGroup'];
-		
-		echo $lastScore;
-		
-		if ($currentScore == $lastScore){
-			if ($currentGroup == $originalGroup){
-				$scoresBelowLine += 1;
-			}else{
-				$scoresAboveLine += 1;
-				$highestGroup = $currentGroup;
+		array_multisort($tmp, SORT_ASC, $shooterArray);
+
+		$shooterCountModular = $shooterCount % $lewisGroups;  //left over shooters if broken into even groups
+		$groupShooterCount = ( $shooterCount - $shooterCountModular ) / $lewisGroups;  //Lewis group size if evenly divisible
+		$groupCounts = array();  //size of each Lewis group from lowest score to highest
+		$x = 1; //$x - group number
+
+		echo '</br>' . $shooterCount . '</br>';
+
+		while ($x <= $lewisGroups){
+			if ($shooterCountModular > 0){
+				$groupCounts[$x] = $groupShooterCount + 1;
+				$shooterCountModular -= 1;
+			}else {
+				$groupCounts[$x] = $groupShooterCount;
 			}
-		}else if ($currentGroup <> $highestGroup){ //if scores are not the same and groups are different
-				if ($scoresBelowLine == 0 && $scoresBelowLine == 0){
-					//do nothing
-					$highestGroup = $currentGroup;
-				}else if ($scoresBelowLine >= $scoresAboveLine){
-					$lewisTies[] = array($lastScore => $originalGroup);
-					echo ' v';
-					$scoresAboveLine = $scoresBelowLine = 0;
+			$x++;
+		}  //end while
+		//now there should be an array of group sizes
 
-				//if there are more ties above the line
-				}else {
-					$lewisTies[] = array($lastScore => $highestGroup);
-					echo ' ^';
-					$scoresAboveLine = $scoresBelowLine = 0;
-				}
-				$originalGroup = $currentGroup;
-		}else{
-			$scoresAboveLine = $scoresBelowLine = 0;	
+		echo '</br></br>';
+		print_r($groupCounts);
+		echo '</br></br>';
+
+		//assign groupings
+		$x = 0;
+		$y = $lewisGroups;
+		//look at each value in the  $lewisGroupShooterCount array
+		foreach ($groupCounts as $shootersLeftInGroup){
+			//set shooters' group
+			while ($shootersLeftInGroup > 0 ){
+				$shooterArray[$x]['lewisGroup'] = $y;
+				$shootersLeftInGroup -= 1;
+				$x += 1;
+			}
+			$y -= 1;
 		}
-		$originalGroup = $shooter['lewisGroup'];
-	
-	
-	
-		
-		
-		//current score same as last
-			//current group = starting group 
-				//belowLine + 1
-			//current group <> starting group
-				//aboveLine + 1
-				//highestGroup = currentGroup
-		//current score different than last
-			//no tie - belowLine and aboveLine = 0
-				//$highest
-			//tie
-			
-		
-		
 
-		echo ' --- ' . $currentScore . ' - ' . $currentGroup . ' - ' . $originalGroup . ' - ' . $highestGroup . ' - ' . $scoresBelowLine . ' - ' . $scoresAboveLine;
+		//groupings for 
+		$originalGroup = $lastGroup = $shooterArray[0]['lewisGroup'];
+		$lastScore = $currentGroup = -1; //set to impossible
+		$scoresBelowLine = $scoresAboveLine = 0;
+		foreach ($shooterArray as $shooter){
+
+			print_r($shooter);
+			echo '</br>';
+			//set score
+			//set group
+			
+			//current score same as last
+				//belowLine && aboveLine == 0
+					//set originalGroup = $lastGroup
+				//current group = starting group 
+					//belowLine + 1
+				//current group <> starting group
+					//aboveLine + 1
+				//set lastScore
+				//set lastGroup
+			//current score different than last
+				//belowLine and aboveLine = 0
+					//capture case; skip to the next score
+				//belowLine >= aboveLine
+					//add to array lastScore=>originalGroup
+				//belowLine < aboveLine
+					//add to array lastScore=>lastGroup
+				//reset above/belowLine
+
+
+			//set lastScore = currentScore
+			//set lastGroup = currentGroup
+			$currentScore = $shooter['score'];
+			$currentGroup = $shooter['lewisGroup'];
+			
+			echo $lastScore;
+			
+			if ($currentScore == $lastScore){
+				if ($scoresBelowLine == 0 && $scoresAboveLine == 0){
+					$originalGroup = $lastGroup;
+				}
+				if ($currentGroup == $originalGroup){
+					$scoresBelowLine += 1;
+				}else{
+					$scoresAboveLine += 1;
+					$highestGroup = $currentGroup;
+				}
+			}else { //if scores are not the same
+					if ($scoresBelowLine == 0 && $scoresBelowLine == 0){
+						//capture case, no ties before this, skip to next score
+					}else if ($scoresBelowLine >= $scoresAboveLine){
+						$lewisTies[] = array($lastScore => $originalGroup);
+						echo ' v';
+					}else {
+						$lewisTies[] = array($lastScore => $lastGroup);
+						echo ' ^';
+						$scoresAboveLine = $scoresBelowLine = 0;
+					}
+					$scoresAboveLine = $scoresBelowLine = 0;
+			}
+			$lastScore = $currentScore;
+			$lastGroup = $currentGroup;
+
+			echo ' --- ' . $currentScore . ' - ' . $currentGroup . ' - ' . $originalGroup . ' - ' . $lastGroup . ' - ' . $scoresBelowLine . ' - ' . $scoresAboveLine;
+			echo '</br>';
+			
+		}//end outer foreach
 		echo '</br>';
-		
-		$lastScore = $currentScore;
-	//}end outer foreach
-	echo '</br>';
-	print_r($lewisTies);
-	//do another double foreach with the ties array and change groups
-	//award a percentage
-	//calculate money
-	
-	
+		print_r($lewisTies);
+		//do another double foreach with the ties array and change groups
+		//award a percentage
+		//calculate money
+
+	}
 	//
 	//end Lewis Calculation
 	//
