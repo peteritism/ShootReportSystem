@@ -46,3 +46,7 @@ shootReport
 
 clubReport
 - [ ] add clubReport
+
+- [ ] caching system
+	- indicate change in data with a toggle on the event (if changed: changed = 1)
+		-look for changed status, on first page generation, cache page set changed = 0
