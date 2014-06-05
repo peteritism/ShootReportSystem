@@ -39,6 +39,9 @@ scoreReport
 		- [ ] calculate money for option winners
 			- [ ] generate list of names/address for money winners
 				-possibly indicated paid status (though this would be more complicated and require all sorts of database reorganization to be done properly and it would still be prone to problems)
+		- [ ] compile winnings list with address and whatnot
+- [ ] add event statistics
+
 - [ ] add some JS to get tables the same size
 
 shootReport

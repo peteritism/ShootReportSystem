@@ -472,9 +472,6 @@ $eventId = $_GET['eventId'];
 		$scoresBelowLine = $scoresAboveLine = 0;
 		foreach ($shooterArray as $shooter){
 
-			print_r($shooter);
-			echo '</br>';
-
 			$currentScore = $shooter['score'];
 			$currentGroup = $shooter['lewisGroup'];
 			
@@ -510,8 +507,6 @@ $eventId = $_GET['eventId'];
 			//echo '</br>';
 			
 		}//end outer foreach
-		echo '</br>';
-		print_r($lewisTies);
 		
 		//make groups changes
 		foreach ($shooterArray as $shooter){
@@ -521,8 +516,6 @@ $eventId = $_GET['eventId'];
 					break;
 				}
 			}
-			echo '</br>';
-			print_r($shooter);
 		}
 		//award percentage money
 
@@ -547,16 +540,16 @@ $eventId = $_GET['eventId'];
 			$shooterArray[$i]['score'] = $row2['totalScore'];
 			$i++;
 		}
-
-		
 		$x = 1;
+
 		while ($x <= $lewisGroups){
+
+
 			$highestScore = 0;
 			$awardSplit = 0;
 			foreach ($shooterArray as $shooter){
 				//the last score meeting the if statement should always be highest else there's a problem
 				if($shooter['lewisGroup'] == $x){
-					echo $x . ' - ' . $shooter['score'] . '</br>';
 					$highestScore = $shooter['score'];
 				}
 			}
@@ -565,16 +558,48 @@ $eventId = $_GET['eventId'];
 					$awardSplit++;
 				}
 			}
-			foreach ($shooterArray as $shooter){
-				if ($shooter['score'] == $highestScore){
-					$shooter['lewisPercentage'] = round((1 / $awardSplit), 3, PHP_ROUND_HALF_UP) * 100;
-					$shooter['lewisMoney'] = round(((1 / $awardSplit) * $groupLewisMoney),2,PHP_ROUND_HALF_UP);
-				}else{
-					$shooter['lewisPercentage'] = $shooter['lewisMoney'] = '-';
+			
+			//convert lewis group number to letter (NSCA practice) 
+			$lewisClassLetter = chr($x + 64);
+
+			foreach ($shooterArray as &$shooter){
+				if($shooter['lewisGroup'] == $x){
+					if ($shooter['score'] == $highestScore){
+						$shooter['lewisPercentage'] = round((1 / $awardSplit), 3, PHP_ROUND_HALF_UP) * 100;
+						$shooter['lewisMoney'] = round(((1 / $awardSplit) * $groupLewisMoney),2,PHP_ROUND_HALF_UP);
+					}else {
+						$shooter['lewisPercentage'] = $shooter['lewisMoney'] = '0';
+					}
 				}
-				print_r($shooter);
-				echo '</br>';
 			}
+			
+			foreach ($shooterArray as $shooter){
+				if($x == 4){
+					print_r($shooter);
+					echo '</br>';
+				}
+			}
+			
+			echo '<table border="1">';
+				echo '<thead><td colspan="5">Lewis Class ' . $lewisClassLetter . '</thead>';
+				echo '<thead>';
+					echo '<td colspan="2"></td>'; //firstName lastName
+					echo '<td>Score</td>';
+					echo '<td>Win %</td>';
+					echo '<td class="private">Money</td>';
+				echo '</thead>';
+			foreach ($shooterArray as $shooter){
+				if($shooter['lewisGroup'] == $x){
+					echo '<tr>';
+						echo '<td class="firstName">' . $shooter['firstName'] . '</td>';
+						echo '<td class="lastName">' . $shooter['lastName'] . '</td>';
+						echo '<td>' . $shooter['score'] . '</td>';
+						echo '<td>' . $shooter['lewisPercentage'] . '%</td>';
+						echo '<td class="private">$' . $shooter['lewisMoney'] . '</td>';
+					echo '</tr>';
+				}
+			}
+			echo '</table>';
 			$x++;
 		}
 		
