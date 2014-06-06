@@ -41,8 +41,11 @@ scoreReport
 				-possibly indicated paid status (though this would be more complicated and require all sorts of database reorganization to be done properly and it would still be prone to problems)
 		- [ ] compile winnings list with address and whatnot
 - [ ] add event statistics
-
 - [ ] add some JS to get tables the same size
+- [ ] rewrite the entire thing to create one PHP array of data and utilize that
+	-I thought it would be better to do individual data queries for each section,
+	but it actually just causes a lot of redundancies and makes it harder because
+	a lot of data must be merged together in an array anyhow.
 
 shootReport
 - [ ] add shootReport

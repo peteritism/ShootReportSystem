@@ -376,6 +376,8 @@ $eventId = $_GET['eventId'];
 	//Lewis Calculation
 	//
 	//these queries should be moved to getShooters
+	
+	
 	$query = '	SELECT lewisGroups
 				FROM shootevent
 				WHERE id=' . $eventId;
@@ -383,6 +385,7 @@ $eventId = $_GET['eventId'];
 	$row = mysqli_fetch_assoc($result);
 	$lewisGroups = $row['lewisGroups'];
 	
+
 	if(!isset($lewisGroups) || $lewisGroups == 0){
 		echo 'Lewis Groups not set';
 	}
@@ -430,12 +433,11 @@ $eventId = $_GET['eventId'];
 		}
 		array_multisort($tmp, SORT_ASC, $shooterArray);
 
+
 		$shooterCountModular = $shooterCount % $lewisGroups;  //left over shooters if broken into even groups
 		$groupShooterCount = ( $shooterCount - $shooterCountModular ) / $lewisGroups;  //Lewis group size if evenly divisible
 		$groupCounts = array();  //size of each Lewis group from lowest score to highest
 		$x = 1; //$x - group number
-
-		echo '</br>' . $shooterCount . '</br>';
 
 		while ($x <= $lewisGroups){
 			if ($shooterCountModular > 0){
@@ -446,11 +448,6 @@ $eventId = $_GET['eventId'];
 			}
 			$x++;
 		}  //end while
-		//now there should be an array of group sizes
-
-		echo '</br></br>';
-		print_r($groupCounts);
-		echo '</br></br>';
 
 		//assign groupings
 		$x = 0;
@@ -506,18 +503,20 @@ $eventId = $_GET['eventId'];
 			//echo ' --- ' . $currentScore . ' - ' . $currentGroup . ' - ' . $originalGroup . ' - ' . $lastGroup . ' - ' . $scoresBelowLine . ' - ' . $scoresAboveLine;
 			//echo '</br>';
 			
-		}//end outer foreach
-		
-		//make groups changes
-		foreach ($shooterArray as $shooter){
+		}  //end outer foreach
+
+
+		//changing groups
+		foreach ($shooterArray as &$shooter){
 			foreach ($lewisTies as $score => $newGroup){
 				if ($shooter['score'] == $score ){
 					$shooter['lewisGroup'] = $newGroup;
 					break;
 				}
 			}
-		}
-		//award percentage money
+		} //end changing groups
+		
+		unset($shooter);
 
 		$query =	'SELECT lewisCost
 					FROM shootevent
@@ -527,23 +526,9 @@ $eventId = $_GET['eventId'];
 		$lewisCost = $row['lewisCost'];
 		$totalLewisMoney = $lewisCost * $shooterCount;
 		$groupLewisMoney = $totalLewisMoney / $lewisGroups;
-		while ($row = mysqli_fetch_array($result)){
-			$shooterArray[$i]['firstName'] = $row['firstName'];
-			$shooterArray[$i]['lastName'] = $row['lastName'] . ' ' . $row['suffix'];
-			//get scores
-			$query2 = 	'SELECT SUM(targetsBroken)
-						AS totalScore
-						FROM shootereventstationscore
-						WHERE eventShooterId=' . $row['id'];
-			$result2 = dbquery($query2);
-			$row2 = mysqli_fetch_assoc($result2);
-			$shooterArray[$i]['score'] = $row2['totalScore'];
-			$i++;
-		}
 		$x = 1;
 
 		while ($x <= $lewisGroups){
-
 
 			$highestScore = 0;
 			$awardSplit = 0;
@@ -558,7 +543,7 @@ $eventId = $_GET['eventId'];
 					$awardSplit++;
 				}
 			}
-			
+
 			//convert lewis group number to letter (NSCA practice) 
 			$lewisClassLetter = chr($x + 64);
 
@@ -573,13 +558,8 @@ $eventId = $_GET['eventId'];
 				}
 			}
 			
-			foreach ($shooterArray as $shooter){
-				if($x == 4){
-					print_r($shooter);
-					echo '</br>';
-				}
-			}
-			
+			unset($shooter);
+
 			echo '<table border="1">';
 				echo '<thead><td colspan="5">Lewis Class ' . $lewisClassLetter . '</thead>';
 				echo '<thead>';
@@ -588,7 +568,8 @@ $eventId = $_GET['eventId'];
 					echo '<td>Win %</td>';
 					echo '<td class="private">Money</td>';
 				echo '</thead>';
-			foreach ($shooterArray as $shooter){
+			$shooterArrayDesc = array_reverse($shooterArray);
+			foreach ($shooterArrayDesc as $shooter){
 				if($shooter['lewisGroup'] == $x){
 					echo '<tr>';
 						echo '<td class="firstName">' . $shooter['firstName'] . '</td>';
@@ -601,14 +582,9 @@ $eventId = $_GET['eventId'];
 			}
 			echo '</table>';
 			$x++;
-		}
-		
-		
-		//award a percentage
-		//calculate money
-		//draw table
-
+		}//end while
 	}
+	
 	//
 	//end Lewis Calculation
 	//
